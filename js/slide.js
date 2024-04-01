@@ -11,6 +11,7 @@ export default class Slide {
     this.onStart = this.onStart.bind(this);
     this.onMove = this.onMove.bind(this);
     this.onEnd = this.onEnd.bind(this);
+    this.onResize = this.onResize.bind(this);
   }
 
   onStart(event) {
@@ -63,8 +64,8 @@ export default class Slide {
       this.wrapper.removeEventListener("touchmove", this.onMove);
     }
     this.dist.finalPosition = this.dist.movePosition;
-    this.changeSlideOnEnd();
     this.transitionSlide(true);
+    this.changeSlideOnEnd();
   }
 
   posicaoSlide(itemm) {
@@ -95,13 +96,14 @@ export default class Slide {
     this.moveSlide(this.arraySlide[index].posicao);
     this.slideNav(index);
     this.dist.finalPosition = this.arraySlide[index].posicao;
+    this.addAtivo();
   }
 
   changeSlideOnEnd() {
-    if (this.dist.movement > 120 && this.indexNav.proximo !== undefined) {
+    if (this.dist.movement > 180 && this.indexNav.proximo !== undefined) {
       this.ativarProxSlide();
     } else if (
-      this.dist.movement < -120 &&
+      this.dist.movement < -180 &&
       this.indexNav.anterior !== undefined
     ) {
       this.ativarAntSlide();
@@ -112,6 +114,13 @@ export default class Slide {
 
   transitionSlide(ativo) {
     this.slide.style.transition = ativo ? "0.5s" : "";
+  }
+
+  addAtivo() {
+    this.arraySlide.forEach((itemm) => {
+      itemm.item.classList.remove("ativo");
+    });
+    this.arraySlide[this.indexNav.atual].item.classList.add("ativo");
   }
 
   ativarProxSlide() {
@@ -126,9 +135,22 @@ export default class Slide {
     }
   }
 
+  onResize() {
+    setTimeout(() => {
+      this.slideConfig();
+      this.changeSlide(this.indexNav.atual);
+    }, 1000);
+  }
+
+  addRezise() {
+    window.addEventListener("resize", this.onResize);
+  }
+
   init() {
     this.addEventSlide();
+    this.transitionSlide(true);
     this.slideConfig();
+    this.addRezise();
     return this;
   }
 }
