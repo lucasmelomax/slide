@@ -24,6 +24,7 @@ export default class Slide {
       movetype = "touchmove";
     }
     this.wrapper.addEventListener(movetype, this.onMove);
+    this.transitionSlide(false);
   }
 
   moveSlide(distX) {
@@ -32,8 +33,8 @@ export default class Slide {
   }
 
   attPosicao(pageX) {
-    const posicaoFinal = (this.dist.distX - pageX) * 1.6;
-    return this.dist.finalPosition - posicaoFinal;
+    this.dist.movement = (this.dist.distX - pageX) * 1.6;
+    return this.dist.finalPosition - this.dist.movement;
   }
 
   onMove(event) {
@@ -62,6 +63,8 @@ export default class Slide {
       this.wrapper.removeEventListener("touchmove", this.onMove);
     }
     this.dist.finalPosition = this.dist.movePosition;
+    this.changeSlideOnEnd();
+    this.transitionSlide(true);
   }
 
   posicaoSlide(itemm) {
@@ -92,6 +95,35 @@ export default class Slide {
     this.moveSlide(this.arraySlide[index].posicao);
     this.slideNav(index);
     this.dist.finalPosition = this.arraySlide[index].posicao;
+  }
+
+  changeSlideOnEnd() {
+    if (this.dist.movement > 120 && this.indexNav.proximo !== undefined) {
+      this.ativarProxSlide();
+    } else if (
+      this.dist.movement < -120 &&
+      this.indexNav.anterior !== undefined
+    ) {
+      this.ativarAntSlide();
+    } else {
+      this.changeSlide(this.indexNav.atual);
+    }
+  }
+
+  transitionSlide(ativo) {
+    this.slide.style.transition = ativo ? "0.5s" : "";
+  }
+
+  ativarProxSlide() {
+    if (this.indexNav.proximo !== undefined) {
+      this.changeSlide(this.indexNav.proximo);
+    }
+  }
+
+  ativarAntSlide() {
+    if (this.indexNav.anterior !== undefined) {
+      this.changeSlide(this.indexNav.anterior);
+    }
   }
 
   init() {
